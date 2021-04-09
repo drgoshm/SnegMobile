@@ -26,7 +26,8 @@
       },
       "permissions": [
         "android.intent.action.MAIN"
-      ]
+      ],
+      "package": "com.aqualife.sneg"
     },
     "web": {
       "favicon": "./assets/favicon.png"

@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PanResponderGestureState } from "react-native";
 
 
-const frontUri = '192.168.1.6:3000'// 'http://front.dev.sneg.chernogolovka.com/'
+const frontUri = 'http://front.dev.sneg.chernogolovka.com/'
 
 const runFirst = `
       window.isNativeApp = true;
