@@ -7,6 +7,8 @@ import * as Linking from 'expo-linking';
 import {useWebViewActivity} from "./hooks/useWebViewActivity";
 import GestureRecognizer from 'react-native-swipe-gestures';
 import QRScanner from './screens/QRScanner';
+import QRScannerUI from './screens/QRScannerUI';
+import CameraView from "./screens/Camera";
 
 export default function App() {
 
@@ -15,7 +17,14 @@ export default function App() {
   const {
     showQRScanner,
     onCloseQRScanner,
+    showQRScannerUI,
+    onCloseQRScannerUI,
+    qrScannerUIPos,
     onQRScaned,
+    showCamera,
+    minShots,
+    onTakePhotos,
+    onCloseCamera,
     onRefresh,
     ...webViewProps
   } = useWebViewActivity()
@@ -27,9 +36,12 @@ export default function App() {
         <WebView
           {...webViewProps}
           style={styles.webView}
+          geolocationEnabled
         />
       </GestureRecognizer>
       <QRScanner visible={showQRScanner} onClose={onCloseQRScanner} onScanned={onQRScaned} />
+      <QRScannerUI visible={showQRScannerUI} onClose={onCloseQRScannerUI} onScanned={onQRScaned} pos={qrScannerUIPos as [number, number]} />
+      <CameraView visible={showCamera} onClose={onCloseCamera} minShots={minShots}  onShoot={onTakePhotos}/>
     </View>
   );
 }

@@ -2,9 +2,9 @@
   "expo": {
     "name": "SnegMobile",
     "slug": "SnegMobile",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/appstore.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -17,7 +17,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.aqualife.sneg"
     },
     "android": {
       "adaptiveIcon": {
@@ -25,9 +26,15 @@
         "backgroundColor": "#FFFFFF"
       },
       "permissions": [
-        "android.intent.action.MAIN"
+        "android.intent.action.MAIN",
+        "CAMERA",
+        "LOCATION",
+        "android.permission.LOCATION",
+        "android.permission.LOCATION_FOREGROUND",
+        "android.permission.ACCESS_FINE_LOCATION"
       ],
-      "package": "com.aqualife.sneg"
+      "package": "com.aqualife.sneg",
+      "versionCode": 13
     },
     "web": {
       "favicon": "./assets/favicon.png"

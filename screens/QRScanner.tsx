@@ -1,6 +1,8 @@
 import React, { useState, FC } from 'react';
-import { View, Modal, StyleSheet, Image } from 'react-native';
+import { View, Text, Modal, StyleSheet, Image } from 'react-native';
 import {BarCodeScanner, BarCodeScannerResult} from 'expo-barcode-scanner';
+import { useEffect } from 'react';
+import { Camera } from 'expo-camera';
 
 type ModalProps = {
   visible: boolean
@@ -10,8 +12,21 @@ type ModalProps = {
 
 const QRScanner: FC<ModalProps> = (props) => {
   const {visible, onScanned, onClose} = props;
+  const [hasPermission, setHasPermission] = useState<boolean | undefined>();
 
-  const [scanned, setScanned] = useState(false);
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestPermissionsAsync();
+      setHasPermission(status === 'granted');
+    })();
+  }, []);
+
+  if (hasPermission === false) {
+    return <Text>No access to camera</Text>;
+  }
+
+  //const [scanned, setScanned] = useState(false);
+
   const onBarCodeScanned = (result: BarCodeScannerResult) => {
     onScanned(result.data);
     onClose();
@@ -25,6 +40,8 @@ const QRScanner: FC<ModalProps> = (props) => {
       onRequestClose={onClose}>
       <View style={styles.centeredView} onTouchEnd={onClose}>
         <View style={styles.modalView}>
+          {hasPermission === undefined && <Text>Wait...</Text>}
+          {!hasPermission && <Text>No access to camera</Text>}
           <BarCodeScanner
             barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
             onBarCodeScanned={onBarCodeScanned}
