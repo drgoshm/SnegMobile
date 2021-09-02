@@ -2,7 +2,7 @@
   "expo": {
     "name": "SnegMobile",
     "slug": "SnegMobile",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/appstore.png",
     "splash": {
@@ -27,17 +27,19 @@
       },
       "permissions": [
         "android.intent.action.MAIN",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "INTERNET",
         "CAMERA",
-        "LOCATION",
-        "android.permission.LOCATION",
-        "android.permission.LOCATION_FOREGROUND",
-        "android.permission.ACCESS_FINE_LOCATION"
+        "LOCATION_FOREGROUND",
+        "LOCATION"
       ],
       "package": "com.aqualife.sneg",
-      "versionCode": 13
+      "versionCode": 14
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "description": ""
   }
 }

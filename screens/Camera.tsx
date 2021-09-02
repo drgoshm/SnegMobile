@@ -5,10 +5,10 @@ import { useEffect } from 'react';
 import {Camera, CameraCapturedPicture} from 'expo-camera';
 
 type ModalProps = {
-  visible: boolean
-  onShoot: (value: Array<CameraCapturedPicture>) => void
-  onClose: () => void
-  minShots?: number
+  visible: boolean;
+  onShoot: (value: Array<CameraCapturedPicture>) => void;
+  onClose: () => void;
+  minShots?: number;
 }
 
 const CameraView: FC<ModalProps> = (props) => {

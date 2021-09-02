@@ -5,9 +5,9 @@ import { useEffect } from 'react';
 import { Camera } from 'expo-camera';
 
 type ModalProps = {
-  visible: boolean
-  onScanned: (value: string) => void
-  onClose: () => void
+  visible: boolean;
+  onScanned: (value: string) => void;
+  onClose: () => void;
 }
 
 const QRScanner: FC<ModalProps> = (props) => {

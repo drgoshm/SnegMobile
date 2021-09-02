@@ -1,10 +1,11 @@
 import WebView, {WebViewMessageEvent} from "react-native-webview";
 import * as IntentLauncher from "expo-intent-launcher";
-import React, {useEffect, useRef, useState} from "react";
+import React, {SyntheticEvent, useEffect, useRef, useState} from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { PanResponderGestureState } from "react-native";
+import {PanResponderGestureState, PermissionsAndroid} from "react-native";
 import * as Location from 'expo-location';
 import {CameraCapturedPicture} from "expo-camera";
+import { Platform } from 'react-native';
 
 //const frontUri = 'http://sneg.chernogolovka.com/'
 const frontUri = 'http://front.dev.sneg.chernogolovka.com/'
@@ -36,7 +37,6 @@ type NavigationState = {
   loading?: boolean;
   canGoBack?: boolean;
   canGoForward?: boolean;
-
 }
 
 export const useWebViewActivity = () => {
@@ -74,23 +74,22 @@ export const useWebViewActivity = () => {
     }
   }
 
-  useEffect(() => {
-    if(ref.current) {
-      ref.current.postMessage('')
-      
-    }
-  }, [])
 
   useEffect(() => {
     (async () => {
       console.log('Try to get permission to access location');
       try {
-        let {status} = await Location.requestPermissionsAsync();
-        if (status !== 'granted') {
-          console.log('Permission to access location was denied');
-          return;
+        const {status} = await Location.requestForegroundPermissionsAsync();
+        if (status === 'granted') {
+          setLocationPermission(true);
+          console.log('Permission to access location was granted');
+          if (ref.current) {
+            setTimeout(() => ref.current?.postMessage(JSON.stringify({
+              action: 'locationGranted',
+            })), 10000);
+          }
         } else {
-          setLocationPermission(true)
+          console.log('Permission to access location was denied');
         }
       }
       catch (e) {
@@ -103,34 +102,60 @@ export const useWebViewActivity = () => {
     if(!locationPermission) return;
     const timer = setInterval(async () => {
       if(!locationPermission) return;
-      let location = await Location.getCurrentPositionAsync({});
-      if(ref.current) {
-        ref.current.postMessage(JSON.stringify({
-          action: 'location',
-          data: location
-        }))
-      }
+      Location.getCurrentPositionAsync().then((location) => {
+
+              if(ref.current) {
+
+                //console.log('location:', location.coords.latitude, location.coords.longitude);
+                try {
+                  ref.current.postMessage(JSON.stringify({
+                    action: 'location',
+                    data: {coords: {...location.coords}}
+                  }))
+                } catch (e) {
+                  console.log(e);
+                }
+              }
+
+
+      }).catch(error => {
+        if(ref.current) {
+
+          ref.current.postMessage(JSON.stringify({
+            action: 'locationError',
+            data: error
+          }))
+        }
+        console.warn(error);
+
+      });
+      
     }, 1000);
 
     return () => clearInterval(timer);
   }, [locationPermission]);
 
   useEffect(() => {
-
-    AsyncStorage.getItem('@credentials').then((value) => {
-      if(value && ref.current) {
-        console.log('cred:', value);
+    if(Platform.OS === 'android') {
+      AsyncStorage.getItem('@credentials').then((value) => {
+        if (value && ref.current) {
+          console.log('cred:', value);
           ref.current.postMessage(JSON.stringify({
             action: 'SavedCredentials',
             data: JSON.parse(value),
           }))
-      }
-    });
+        }
+      }).catch((err) => {
+        console.warn(err);
+      });
+    }
   }, [])
 
 
   const onMessage = (event: WebViewMessageEvent) => {
     const query = JSON.parse(event.nativeEvent.data);
+
+    if(query.action === 'log')  console.log(query.data);
     if(query.action === 'callQRScanner')  setShowQRScanner(true)
     if(query.action === 'callQRScannerUI') {
       setQRScannerUIPos([query.top, query.height])
@@ -151,6 +176,11 @@ export const useWebViewActivity = () => {
           username: query.username,
           password: query.password,
         }));
+    }
+
+    if(query.action === 'getMediaDevices') {
+      // @ts-ignore
+      //ref.current?.MediaDevices.getUserMedia()
     }
 
     if(query.action === 'getCredentials') {
@@ -187,10 +217,41 @@ export const useWebViewActivity = () => {
     }
   }
 
+  const onContentProcessDidTerminate = (syntheticEvent: SyntheticEvent) => {
+    const { nativeEvent } = syntheticEvent;
+    console.warn('Content process terminated, reloading', nativeEvent);
+    if (ref.current) {
+      setShowQRScannerUI(false);
+      ref.current.reload();
+    }
+  }
+
   const onNavigationStateChange = (newNavState: NavigationState) => {
     if (ref.current) {
       console.log(newNavState.url)
       //ref.current.stopLoading();
+    }
+    if(Platform.OS === 'android') {
+      (async () => {
+        try {
+          var permission = await PermissionsAndroid.check(
+            PermissionsAndroid.PERMISSIONS.CAMERA
+          );
+          console.log("camera && gallery permission granted:- ", permission);
+          if (!permission) {
+            const granted = await PermissionsAndroid.request(
+              PermissionsAndroid.PERMISSIONS.CAMERA
+            );
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+              console.log('Camera && Gallery permissions granted');
+            } else {
+              console.log('Camera && Gallery permission denied');
+            }
+          }
+        } catch (err) {
+          console.warn(err);
+        }
+      })();
     }
   }
 
@@ -212,5 +273,9 @@ export const useWebViewActivity = () => {
     onMessage,
     onRefresh,
     onNavigationStateChange,
+    onContentProcessDidTerminate,
+    mediaPlaybackRequiresUserAction: false,
+    allowInlineMediaPlayback: true,
+    geolocationEnabled: true,
   }
 }

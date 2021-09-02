@@ -5,10 +5,10 @@ import { useEffect } from 'react';
 import { Camera } from 'expo-camera';
 
 type ModalProps = {
-  visible: boolean
-  onScanned: (value: string) => void
-  onClose: () => void,
-  pos: [number, number],
+  visible: boolean;
+  onScanned: (value: string) => void;
+  onClose: () => void;
+  pos: [number, number];
 }
 
 const QRScannerUI: FC<ModalProps> = (props) => {
@@ -36,7 +36,7 @@ const QRScannerUI: FC<ModalProps> = (props) => {
   
 
   return (<>
-      {visible && <View style={{...styles.centeredView, top: pos[0] + 28, height: pos[1] * 2}} >
+      {visible && <View style={{...styles.centeredView}} >
         <View style={styles.modalView}>
           {hasPermission === undefined && <Text>Wait...</Text>}
           {!hasPermission && <Text>No access to camera</Text>}
@@ -44,10 +44,10 @@ const QRScannerUI: FC<ModalProps> = (props) => {
             barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
             onBarCodeScanned={onBarCodeScanned}
             style={styles.absoluteFillObject}
-            
+
           />
           <View style={styles.QR}>
-            <Image style={styles.tinyLogo} source={require('../assets/QR.png')} />
+            <Image style={styles.tinyLogo} source={require('../assets/QR.png')} width={300} height={300}/>
             
           </View>
         </View>
@@ -60,6 +60,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     right: 0,
+    top: 0,
+    height: '100%',
   },
   modalView: {
     margin: 0,
@@ -97,16 +99,12 @@ const styles = StyleSheet.create({
   },
   absoluteFillObject: {
     position: 'absolute',
-    top: -50,
-    bottom: -400,
+    top: "-200%",
+    bottom: "-200%",
     left: 0,
     right: 0,
   },
   QR: {
-    top: 35,
-    position: 'absolute',
-    width: '90%',
-    height: '80%',
     display: 'flex',
     justifyContent: 'center',
   },
